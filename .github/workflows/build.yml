@@ -25,15 +25,16 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK packages
-        run: |
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
-          yes | sdkmanager --licenses
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses || true
 
-      - name: Extract Android project
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Extract project
         run: |
           unzip MiraProAndroid-com-build-na-nuvem.zip -d source
           find source -name build.gradle.kts
@@ -44,7 +45,7 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build debug APK
+      - name: Build APK
         run: |
           cd source/MiraProAndroid
           gradle assembleDebug --no-daemon
