@@ -1,10 +1,12 @@
 
-name: Compilar MiraPro APK
+name: Build MiraPro APK
 
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
+    branches:
+      - main
+      - master
 
 permissions:
   contents: read
@@ -14,37 +16,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar arquivos do repositorio
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Preparar Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Preparar Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Instalar ferramentas Android
+      - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Extrair projeto
+      - name: Extract Android project
         run: |
           unzip MiraProAndroid-com-build-na-nuvem.zip -d source
+          find source -maxdepth 4 -type f | head -80
           test -f source/MiraProAndroid/app/build.gradle.kts
 
-      - name: Preparar Gradle
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Compilar APK
+      - name: Build debug APK
         run: |
           cd source/MiraProAndroid
           gradle assembleDebug --no-daemon
 
-      - name: Disponibilizar APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MiraPro-APK
